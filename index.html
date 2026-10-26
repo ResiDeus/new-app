@@ -3,19 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Sumas</title>
+  <title>Calculadora PWA</title>
   
-  <!-- Configuración PWA básica inline -->
-  <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Calculadora%20de%20Sumas%22,%22short_name%22:%22Sumadora%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23121212%22,%22theme_color%22:%22%2300e676%22,%22icons%22:[{%22src%22:%22https://flaticon.com}]}">
+  <!-- Icono Apple -->
+  <link rel="apple-touch-icon" href="https://flaticon.com">
+
+  <!-- Configuración PWA Completa (Inyectada inline para GitHub Pages sin archivos extra) -->
+  <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Calculadora%20de%20Sumas%22,%22short_name%22:%22Sumadora%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23121212%22,%22theme_color%22:%22%2300e676%22,%22icons%22:[{%22src%22:%22https://flaticon.com},{%22src%22:%22https://flaticon.com%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
 
   <style>
-    /* Estilos Generales de la UI */
     body {
       margin: 0;
       padding: 0;
       background-color: #121212;
       color: #ffffff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: system-ui, -apple-system, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -23,7 +25,7 @@
       overflow: hidden;
     }
 
-    /* Contenedor de la Calculadora */
+    /* Calculadora */
     .calc-container {
       background-color: #1e1e1e;
       padding: 30px;
@@ -35,11 +37,7 @@
       border: 1px solid #2d2d2d;
     }
 
-    h2 {
-      margin-top: 0;
-      color: #00e676;
-      font-size: 1.5rem;
-    }
+    h2 { margin-top: 0; color: #00e676; }
 
     input[type="number"] {
       width: 100%;
@@ -54,12 +52,9 @@
       box-sizing: border-box;
       outline: none;
     }
+    input[type="number"]:focus { border-color: #00e676; }
 
-    input[type="number"]:focus {
-      border-color: #00e676;
-    }
-
-    button.btn-sumar {
+    .btn-sumar {
       width: 100%;
       padding: 15px;
       background-color: #00e676;
@@ -70,11 +65,6 @@
       font-weight: bold;
       cursor: pointer;
       margin-top: 10px;
-      transition: background 0.2s;
-    }
-
-    button.btn-sumar:active {
-      background-color: #00b354;
     }
 
     .resultado-box {
@@ -84,21 +74,11 @@
       border-radius: 10px;
       border-left: 5px solid #00e676;
     }
+    .resultado-box strong { font-size: 2rem; }
 
-    .resultado-box span {
-      display: block;
-      font-size: 0.9rem;
-      color: #aaa;
-    }
-
-    .resultado-box strong {
-      font-size: 2rem;
-      color: #fff;
-    }
-
-    /* Pantalla de Bloqueo / Prompt de Instalación */
+    /* Pantalla de Bloqueo Móvil */
     .bloqueo-screen {
-      display: none; /* Controlado por JS */
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
@@ -111,45 +91,19 @@
       box-sizing: border-box;
     }
 
-    .bloqueo-screen h1 {
-      font-size: 2.2rem;
-      color: #00e676;
-      margin-bottom: 15px;
-    }
-
-    .bloqueo-screen p {
-      font-size: 1.1rem;
-      color: #ccc;
-      line-height: 1.6;
-      max-width: 400px;
-      margin: 0 auto 30px auto;
-    }
-
-    .btn-instalar {
-      display: none; /* Solo aparece si el navegador soporta el prompt automático */
-      background-color: #ffffff;
-      color: #000000;
-      border: none;
-      padding: 14px 35px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      border-radius: 30px;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(255,255,255,0.2);
-    }
+    .bloqueo-screen h1 { font-size: 2.2rem; color: #00e676; }
+    .bloqueo-screen p { color: #ccc; line-height: 1.6; max-width: 400px; margin: 0 auto; }
   </style>
 </head>
 <body>
 
-  <!-- PANTALLA DE BLOQUEO (PROMPT) -->
+  <!-- PANTALLA DE BLOQUEO (SE MUESTRA SI ABREN DESDE NAVEGADOR WEB MÓVIL) -->
   <div id="pantalla-bloqueo" class="bloqueo-screen">
-    <h1>📲 Instala la App</h1>
-    <p id="instrucciones-texto">
-      Para poder usar la calculadora, debes añadirla a tu pantalla de inicio.<br><br>
-      Toca el menú de tu navegador (los 3 puntos o compartir) y selecciona <b>"Añadir a la pantalla de inicio"</b> o <b>"Instalar"</b>.
+    <h1>📲 Aplicación Disponible</h1>
+    <p><br>
+      Mira la parte superior de tu navegador o pulsa el aviso de <b>"App disponible"</b> para agregar esta calculadora a tu pantalla de inicio.<br><br>
+      Si no lo ves, abre el menú de opciones (los 3 puntos o compartir) y selecciona <b>"Instalar"</b> o <b>"Añadir a pantalla de inicio"</b>.
     </p>
-    <!-- Botón nativo que se activa en Android/Chrome -->
-    <button id="btn-instalar-nativo" class="btn-instalar">Instalar Ahora</button>
   </div>
 
   <!-- APLICACIÓN PRINCIPAL (CALCULADORA) -->
@@ -158,87 +112,45 @@
     <input type="number" id="num1" placeholder="Primer número" inputmode="numeric">
     <input type="number" id="num2" placeholder="Segundo número" inputmode="numeric">
     <button class="btn-sumar" onclick="realizarSuma()">Calcular Suma</button>
-    
     <div class="resultado-box">
-      <span>Resultado:</span>
       <strong id="resultado">0</strong>
     </div>
   </div>
 
   <script>
-    // --- LÓGICA DE LA CALCULADORA ---
     function realizarSuma() {
       const n1 = parseFloat(document.getElementById('num1').value) || 0;
       const n2 = parseFloat(document.getElementById('num2').value) || 0;
       document.getElementById('resultado').innerText = n1 + n2;
     }
 
-    // --- LÓGICA DE BLOQUEO Y DETECCIÓN PWA ---
-    let eventoInstalacion;
-
     function comprobarAcceso() {
       const pantalla = document.getElementById('pantalla-bloqueo');
-      const texto = document.getElementById('instrucciones-texto');
 
-      // 1. Detectar si es Computadora (PC)
-      let esPC = false;
-      if (navigator.userAgentData) {
-        esPC = !navigator.userAgentData.mobile;
-      } else {
-        esPC = !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      }
-
-      if (esPC) {
-        texto.innerHTML = "Esta aplicación es exclusiva para dispositivos móviles. Por favor, escanea o abre este enlace desde tu teléfono celular.";
-        pantalla.style.display = 'block';
-        return;
-      }
-
-      // 2. Detectar si está abierta como App en el Homescreen (Standalone)
+      // Detectar si está abierta como App instalada en el Escritorio (PWA Standalone)
       const estaInstalada = window.matchMedia('(display-mode: standalone)').matches || 
                             window.matchMedia('(display-mode: fullscreen)').matches || 
-                            window.navigator.standalone === true; // iOS Safari
+                            window.navigator.standalone === true; 
 
       if (!estaInstalada) {
-        // Bloquear si se abre desde el navegador móvil
+        // Si está en el navegador (móvil o PC), activamos el bloqueo de fondo
+        // Esto fuerza al usuario a usar el botón superior del navegador para desbloquearla
         pantalla.style.display = 'block';
       } else {
-        // Permitir acceso si se abre desde el icono del escritorio
         pantalla.style.display = 'none';
       }
     }
 
-    // 3. Capturar el prompt de instalación nativo (Especial para Android/Chrome)
+    // Al NO bloquear el evento 'beforeinstallprompt', el navegador activará 
+    // automáticamente su icono de instalación en la barra superior (Omnibox)
     window.addEventListener('beforeinstallprompt', (e) => {
-      // Evita que el navegador muestre su propio aviso automático clásico en la parte inferior
-      e.preventDefault();
-      // Guarda el evento para usarlo cuando presionen nuestro botón personalizado
-      eventoInstalacion = e;
-      
-      // Muestra nuestro botón de instalación moderno
-      const btnInstalar = document.getElementById('btn-instalar-nativo');
-      btnInstalar.style.display = 'inline-block';
-      
-      document.getElementById('instrucciones-texto').innerHTML = "Haz clic en el botón de abajo para instalar la app directamente en tu teléfono y empezar a usarla.";
+      console.log("El banner e icono superior del navegador se han activado.");
     });
 
-    // Acción del botón de instalación personalizado
-    document.getElementById('btn-instalar-nativo').addEventListener('click', async () => {
-      if (eventoInstalacion) {
-        eventoInstalacion.prompt();
-        const { outcome } = await eventoInstalacion.userChoice;
-        if (outcome === 'accepted') {
-          console.log('El usuario aceptó instalar la app.');
-        }
-        eventoInstalacion = null;
-      }
-    });
-
-    // Ejecutar la revisión inmediatamente al cargar la página
     window.onload = comprobarAcceso;
   </script>
 
-  <!-- Service Worker Requerido para activar la instalación en Android -->
+  <!-- Service Worker Inline obligatorio para activar los avisos del navegador -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('data:text/javascript,self.addEventListener(%22fetch%22,eval);');
